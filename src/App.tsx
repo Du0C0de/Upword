@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
 import HomeScreen from "./screens/HomeScreen";
 

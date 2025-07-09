@@ -74,7 +74,7 @@ export default function HomeScreen(props: {
 
             return out;
         });
-    }, [meta]);
+    }, [meta.colorScheme]);
 
     useEffect(() => {
         fallValue.current.setValue(20);
@@ -129,6 +129,7 @@ export default function HomeScreen(props: {
                     ]}
                 >
                     — {state.shownQuote.author}
+                    {state.shownQuote.date ? ", " + state.shownQuote.date : ""}
                 </Animated.Text>
 
                 <View style={{ position: "absolute", bottom: 20, right: 20 }}>
