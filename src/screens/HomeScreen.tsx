@@ -1,3 +1,7 @@
+//
+// NOT A STOISIM APP
+//
+
 import React, { useState, useEffect, useRef } from "react";
 import {
     View,
@@ -9,6 +13,7 @@ import {
 } from "react-native";
 
 import getQuote, { Quote } from "../lib/quotes";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 type ScreenState = {
     shownQuote: Quote;
@@ -137,15 +142,11 @@ export default function HomeScreen(props: {
                             }));
                         }}
                     >
-                        <Text
-                            style={[
-                                {
-                                    color: state.textColor,
-                                },
-                            ]}
-                        >
-                            Toggle {meta.colorScheme === "dark" ? "Light" : "Dark"} Mode
-                        </Text>
+                        {meta.colorScheme === "dark" ? (
+                            <MaterialIcons name="light-mode" size={32} color="white" />
+                        ) : (
+                            <MaterialIcons name="dark-mode" size={32} color="black" />
+                        )}
                     </Pressable>
                 </View>
             </View>
