@@ -2,13 +2,14 @@
 // NOT A STOISIM APP
 //
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TouchableWithoutFeedback, Animated } from "react-native";
 
 import getQuote, { Quote } from "../lib/quotes";
 import { useDefinedColors } from "../lib/colors";
 import { usePersistantState } from "../lib/storage";
 import { SIMPLE_ANIMATION_CONTROLS, SimpleAnimation } from "../lib/animations";
+import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler";
 
 const DEFAULT_QUOTE: Quote = {
     author: "DuoCode",
@@ -18,6 +19,21 @@ const DEFAULT_QUOTE: Quote = {
 
 export default function HomeScreen() {
     const definedColors = useDefinedColors();
+    const tap = Gesture.Tap().onEnd(() => {
+        console.log("Tapped");
+        showNextQuote("none");
+    });
+    const flingUp = Gesture.Fling()
+        .direction(Directions.UP)
+        .onEnd(() => {
+            showNextQuote("up");
+        });
+    const flingDown = Gesture.Fling()
+        .direction(Directions.DOWN)
+        .onEnd(() => {
+            showNextQuote();
+        });
+
     const [animatedValues] = useState({
         yOffset: new Animated.Value(0, { useNativeDriver: true }),
         opacity: new Animated.Value(1, { useNativeDriver: true }),
@@ -31,9 +47,9 @@ export default function HomeScreen() {
         readInitialStateFromStorage: true,
     });
 
-    const showNextQuote = () => {
+    const showNextQuote = (fadeDirection: "up" | "down" | "none" = "down") => {
         (async () => {
-            SIMPLE_ANIMATION_CONTROLS.Y_OFFSET_MAX_TRAVEL_DISTANCE = 20;
+            SIMPLE_ANIMATION_CONTROLS.FADE_DIRECTION = fadeDirection;
 
             await SimpleAnimation.dropOutFadeOut(
                 animatedValues.yOffset,
@@ -41,8 +57,6 @@ export default function HomeScreen() {
             );
 
             setPersistantQuote(getQuote());
-
-            SIMPLE_ANIMATION_CONTROLS.Y_OFFSET_MAX_TRAVEL_DISTANCE = 25;
 
             await SimpleAnimation.dropInFadeIn(
                 animatedValues.yOffset,
@@ -52,44 +66,58 @@ export default function HomeScreen() {
         })();
     };
 
+    useEffect(() => {
+        animatedValues.opacity.setValue(1);
+        if (persistantQuote != null) return;
+
+        setPersistantQuote({ ...DEFAULT_QUOTE });
+    }, []);
+
     return (
-        <TouchableWithoutFeedback onPress={() => showNextQuote()}>
-            <View
-                style={[styles.container, { backgroundColor: definedColors.BACKGROUND }]}
-            >
-                <Animated.Text
-                    style={[
-                        styles.quote,
-                        {
-                            color: definedColors.TEXT,
-                            opacity: animatedValues.opacity,
-                            transform: [{ translateY: animatedValues.yOffset }],
-                        },
-                    ]}
-                >
-                    {persistantQuote && persistantQuote.quote}
-                </Animated.Text>
-                <Animated.Text
-                    style={[
-                        styles.author,
-                        {
-                            color: definedColors.TEXT,
-                            opacity: animatedValues.opacity,
-                            transform: [
+        <GestureDetector gesture={flingUp}>
+            <GestureDetector gesture={flingDown}>
+                <GestureDetector gesture={tap}>
+                    <View
+                        style={[
+                            styles.container,
+                            { backgroundColor: definedColors.BACKGROUND },
+                        ]}
+                    >
+                        <Animated.Text
+                            style={[
+                                styles.quote,
                                 {
-                                    translateY: animatedValues.yOffset,
+                                    color: definedColors.TEXT,
+                                    opacity: animatedValues.opacity,
+                                    transform: [{ translateY: animatedValues.yOffset }],
                                 },
-                            ],
-                        },
-                    ]}
-                >
-                    {persistantQuote &&
-                        `- ${persistantQuote.author}${
-                            persistantQuote.date ? ", " + persistantQuote.date : ""
-                        }`}
-                </Animated.Text>
-            </View>
-        </TouchableWithoutFeedback>
+                            ]}
+                        >
+                            {persistantQuote && persistantQuote.quote}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.author,
+                                {
+                                    color: definedColors.TEXT,
+                                    opacity: animatedValues.opacity,
+                                    transform: [
+                                        {
+                                            translateY: animatedValues.yOffset,
+                                        },
+                                    ],
+                                },
+                            ]}
+                        >
+                            {persistantQuote &&
+                                `- ${persistantQuote.author}${
+                                    persistantQuote.date ? ", " + persistantQuote.date : ""
+                                }`}
+                        </Animated.Text>
+                    </View>
+                </GestureDetector>
+            </GestureDetector>
+        </GestureDetector>
     );
 }
 
