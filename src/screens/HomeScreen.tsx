@@ -2,85 +2,58 @@
 // NOT A STOISIM APP
 //
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, TouchableWithoutFeedback, Animated } from "react-native";
 
 import getQuote, { Quote } from "../lib/quotes";
 import { useDefinedColors } from "../lib/colors";
-import { readFromStorage, writeToStorage } from "../lib/storage";
+import { usePersistantState } from "../lib/storage";
+import { SIMPLE_ANIMATION_CONTROLS, SimpleAnimation } from "../lib/animations";
 
-const FALL_TIME_MS = 300;
-const FADE_TIME_MS = 200;
 const DEFAULT_QUOTE: Quote = {
     author: "DuoCode",
     quote: "The page is loading 🏛",
     date: new Date(Date.now()).getFullYear(),
 };
 
-const fade = (value: Animated.Value, toVal: number) =>
-    Animated.timing(value, {
-        toValue: toVal,
-        duration: FADE_TIME_MS,
-        useNativeDriver: true,
-    });
-
-const fall = (value: Animated.Value, toVal: number) =>
-    Animated.timing(value, {
-        toValue: toVal,
-        duration: FALL_TIME_MS,
-        useNativeDriver: true,
-    });
-
 export default function HomeScreen() {
-    const fadeValue = useRef(new Animated.Value(1));
-    const fallValue = useRef(new Animated.Value(0));
     const definedColors = useDefinedColors();
+    const [animatedValues] = useState({
+        yOffset: new Animated.Value(0, { useNativeDriver: true }),
+        opacity: new Animated.Value(1, { useNativeDriver: true }),
+        reset() {
+            animatedValues.yOffset.setValue(0);
+            animatedValues.opacity.setValue(1);
+        },
+    });
 
-    const [shownQuote, setShownQuote] = useState<Quote>({ ...DEFAULT_QUOTE });
-    const [initalStartup, setStartup] = useState<Quote>();
+    const [persistantQuote, setPersistantQuote] = usePersistantState("LAST-QUOTE", {
+        readInitialStateFromStorage: true,
+    });
 
-    useEffect(() => {
-        readFromStorage("LAST-QUOTE", (obj) => {
-            return { ...obj } as Quote;
-        }).then((quote) => {
-            setStartup({ ...quote });
-        });
-    }, []);
+    const showNextQuote = () => {
+        (async () => {
+            SIMPLE_ANIMATION_CONTROLS.Y_OFFSET_MAX_TRAVEL_DISTANCE = 20;
 
-    useEffect(() => {
-        if (initalStartup == null) return;
+            await SimpleAnimation.dropOutFadeOut(
+                animatedValues.yOffset,
+                animatedValues.opacity
+            );
 
-        setShownQuote({ ...initalStartup });
-    }, [initalStartup]);
+            setPersistantQuote(getQuote());
 
-    useEffect(() => {
-        if (shownQuote == null) return;
+            SIMPLE_ANIMATION_CONTROLS.Y_OFFSET_MAX_TRAVEL_DISTANCE = 25;
 
-        fallValue.current.setValue(20);
-        fadeValue.current.setValue(0);
-        Animated.parallel([
-            fade(fadeValue.current, 1),
-            fall(fallValue.current, 0),
-        ]).start();
-
-        writeToStorage("LAST-QUOTE", shownQuote);
-    }, [shownQuote]);
-
-    const showNextQuote = (quote: Quote) => {
-        const fadeOutQuote = () => {
-            // Fade to 0, Fall to -20
-            Animated.parallel([
-                fade(fadeValue.current, 0),
-                fall(fallValue.current, -20),
-            ]).start(() => {
-                setShownQuote(() => ({ ...quote }));
-            });
-        };
-        fadeOutQuote();
+            await SimpleAnimation.dropInFadeIn(
+                animatedValues.yOffset,
+                animatedValues.opacity,
+                { reset: animatedValues.reset }
+            );
+        })();
     };
 
     return (
-        <TouchableWithoutFeedback onPress={() => showNextQuote(getQuote())}>
+        <TouchableWithoutFeedback onPress={() => showNextQuote()}>
             <View
                 style={[styles.container, { backgroundColor: definedColors.BACKGROUND }]}
             >
@@ -89,29 +62,31 @@ export default function HomeScreen() {
                         styles.quote,
                         {
                             color: definedColors.TEXT,
-                            opacity: fadeValue.current,
-                            transform: [{ translateY: fallValue.current }],
+                            opacity: animatedValues.opacity,
+                            transform: [{ translateY: animatedValues.yOffset }],
                         },
                     ]}
                 >
-                    {shownQuote.quote}
+                    {persistantQuote && persistantQuote.quote}
                 </Animated.Text>
                 <Animated.Text
                     style={[
                         styles.author,
                         {
                             color: definedColors.TEXT,
-                            opacity: fadeValue.current,
+                            opacity: animatedValues.opacity,
                             transform: [
                                 {
-                                    translateY: fallValue.current,
+                                    translateY: animatedValues.yOffset,
                                 },
                             ],
                         },
                     ]}
                 >
-                    — {shownQuote.author}
-                    {shownQuote.date ? ", " + shownQuote.date : ""}
+                    {persistantQuote &&
+                        `- ${persistantQuote.author}${
+                            persistantQuote.date ? ", " + persistantQuote.date : ""
+                        }`}
                 </Animated.Text>
             </View>
         </TouchableWithoutFeedback>

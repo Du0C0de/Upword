@@ -14,11 +14,6 @@ import HomeScreen from "./screens/HomeScreen";
 import { StatusBar } from "expo-status-bar";
 import COLORS from "./lib/colors";
 
-const invertedColor = {
-    light: "dark",
-    dark: "light",
-};
-
 export default function App() {
     const colorScheme = useColorScheme() as "light" | "dark";
 
@@ -46,7 +41,7 @@ export default function App() {
                 >
                     <MaterialIcons
                         name={
-                            `${invertedColor[colorScheme]}-mode` as
+                            `${COLORS.opposite(colorScheme)}-mode` as
                                 | "dark-mode"
                                 | "light-mode"
                         }
