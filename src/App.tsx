@@ -1,64 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-    Appearance,
-    Pressable,
-    SafeAreaView,
-    StyleSheet,
-    useColorScheme,
-    View,
+  View,
+  StyleSheet,
+  Pressable,
+  useColorScheme,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { reloadAppAsync } from "expo";
-
-import HomeScreen from "./screens/HomeScreen";
 import { StatusBar } from "expo-status-bar";
-import COLORS from "./lib/colors";
+import { MaterialIcons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-export default function App() {
-    const colorScheme = useColorScheme() as "light" | "dark";
+import HomeScreen from "./screens/HomeScreen";
 
-    return (
-        <SafeAreaView style={[styles.container]}>
-            <GestureHandlerRootView>
-                <StatusBar
-                    backgroundColor={colorScheme}
-                    style={colorScheme === "dark" ? "light" : "dark"}
-                />
-                <HomeScreen />
-                <View
-                    style={{
-                        position: "absolute",
-                        bottom: 50,
-                        right: 20,
-                    }}
-                >
-                    <Pressable
-                        style={{ padding: 10 }}
-                        onPress={() => {
-                            const newScheme = colorScheme === "dark" ? "light" : "dark";
-                            Appearance.setColorScheme(newScheme);
-                            reloadAppAsync("Theme Change");
-                        }}
-                    >
-                        <MaterialIcons
-                            name={
-                                `${COLORS.opposite(colorScheme)}-mode` as
-                                    | "dark-mode"
-                                    | "light-mode"
-                            }
-                            size={35}
-                            color={colorScheme === "dark" ? "white" : "black"}
-                        />
-                    </Pressable>
-                </View>
-            </GestureHandlerRootView>
-        </SafeAreaView>
-    );
+export default function App() {
+  const systemTheme = useColorScheme() as "light" | "dark";
+  const [theme, setTheme] = useState<"light" | "dark">(systemTheme);
+
+  const bg = theme === "dark" ? "#000" : "#fff";
+  const iconColor = theme === "dark" ? "#fff" : "#000";
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar translucent style={theme === "dark" ? "light" : "dark"} />
+      <View style={[styles.container, { backgroundColor: bg }]}>
+        <HomeScreen theme={theme} />
+        <View style={styles.toggle}>
+          <Pressable onPress={() => setTheme(theme === "dark" ? "light" : "dark")}>
+            <MaterialIcons
+              name={theme === "dark" ? "light-mode" : "dark-mode"}
+              size={35}
+              color={iconColor}
+            />
+          </Pressable>
+        </View>
+      </View>
+    </GestureHandlerRootView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+  container: {
+    flex: 1,
+  },
+  toggle: {
+    position: "absolute",
+    bottom: 50,
+    right: 20,
+  },
 });

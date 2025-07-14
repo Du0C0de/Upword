@@ -23,7 +23,7 @@ const getColors = (scheme: "light" | "dark") => ({
     TEXT: scheme === "dark" ? COLORS.DARK.TEXT : COLORS.LIGHT.TEXT,
 });
 
-export const useDefinedColors = () => {
+export const useDefinedColors = (theme: string) => {
     const colorScheme = useColorScheme();
     const [usedColors, setUsedColors] = useState<DefinedColors>({
         ...getColors(colorScheme ?? "dark"),
