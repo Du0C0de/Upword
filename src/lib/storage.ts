@@ -1,60 +1,54 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Quote } from "./quotes";
 import { useEffect, useState } from "react";
+import { Quote } from "./types";
 
 export type KnownKeys = {
-    "LAST-QUOTE": Quote;
+  "LAST-QUOTE": Quote;
+  "FAVORITES": Quote[];
 };
 
 export const usePersistantState = <K extends keyof KnownKeys>(
-    key: K,
-    behavior: {
-        initialState?: KnownKeys[K];
-        readInitialStateFromStorage?: boolean;
+  key: K,
+  options: {
+    initialState?: KnownKeys[K];
+    readInitialStateFromStorage?: boolean;
+  }
+): [KnownKeys[K], (newValue: KnownKeys[K]) => void] => {
+  const { initialState, readInitialStateFromStorage } = options;
+  const [value, setValue] = useState<KnownKeys[K]>(
+    initialState ?? (defaultFor(key) as KnownKeys[K])
+  );
+
+  useEffect(() => {
+    if (!readInitialStateFromStorage) return;
+
+    const load = async () => {
+      try {
+        const raw = await AsyncStorage.getItem(key);
+        if (raw !== null) {
+          const parsed = JSON.parse(raw);
+          setValue(parsed);
+        }
+      } catch (e) {
+        console.error(`Error reading ${key} from storage:`, e);
+      }
+    };
+
+    load();
+  }, [key, readInitialStateFromStorage]);
+
+  useEffect(() => {
+    if (value != null) {
+      AsyncStorage.setItem(key, JSON.stringify(value)).catch((e) =>
+        console.error(`Error writing ${key} to storage:`, e)
+      );
     }
-) => {
-    const [value, setValue] = useState<KnownKeys[K] | null>(behavior.initialState ?? null);
+  }, [key, value]);
 
-    useEffect(() => {
-        behavior.readInitialStateFromStorage &&
-            readFromStorage(key, (val) => val as KnownKeys[K]).then((val) => {
-                setValue(val);
-            });
-    }, [key, behavior.readInitialStateFromStorage]);
-
-    useEffect(() => {
-        if (value === null) return;
-        if (typeof value !== "object")
-            throw new TypeError(
-                `"${value}", typeof: "${typeof value}" is not a JSON serializeable string`
-            );
-
-        writeToStorage(key, value);
-    }, [value]);
-
-    return [value, setValue] as const;
+  return [value, setValue];
 };
 
-export const writeToStorage = async <K extends keyof KnownKeys>(
-    key: K,
-    value: KnownKeys[K]
-) => {
-    await AsyncStorage.setItem(key, JSON.stringify(value));
-};
-
-export const readFromStorage = async <
-    K extends keyof KnownKeys,
-    OUT_TYPE extends KnownKeys[K]
->(
-    key: K,
-    conversionFactory?: (object: { [key: string]: unknown }) => OUT_TYPE
-) => {
-    const value = await AsyncStorage.getItem(key);
-
-    if (value === null) throw new Error(`Failed to receive "${key}"`);
-
-    const parsed = JSON.parse(value);
-
-    if (conversionFactory != null) return conversionFactory(parsed);
-    else return parsed;
-};
+function defaultFor(key: keyof KnownKeys): unknown {
+  if (key === "FAVORITES") return [];
+  return null;
+}
