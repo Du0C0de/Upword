@@ -31,8 +31,9 @@ export default function FavoritesScreen({ theme }: FavoritesScreenProps) {
 
   const backgroundColor = theme === "dark" ? "#000" : "#fff";
   const textColor = theme === "dark" ? "#fff" : "#000";
-  const deleteColor = theme === "dark" ? "#ff453a" : "#ff3b30";
-  const shareColor = theme === "dark" ? "#0a84ff" : "#007aff";
+  const deleteColor = theme === "dark" ? "#EF5350" : "#D32F2F";
+  const shareColor = theme === "dark" ? "#64B5F6" : "#1976D2";
+
 
   const handleDelete = (quoteToRemove: Quote) => {
     if (openRow.current) openRow.current.close();
