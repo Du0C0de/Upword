@@ -75,8 +75,8 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
 
     try {
       await Share.share({
-        message: `“${lastQuote.quote}” — ${lastQuote.author}\n\nCheck out the Daily Quotes App!`,
-        url: "https://your-app-link.com",
+        message: `“${lastQuote.quote}” — ${lastQuote.author}\n\nCheck out the Daily Motivational Quotes App!`,
+        url: "https://Upword.com",
         title: "Inspiring Quote",
       });
     } catch (error) {
