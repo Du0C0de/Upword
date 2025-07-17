@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -50,6 +50,9 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
 
   const [heartScale] = useState(new RNAnimated.Value(1));
 
+  const floatingHeartOpacity = useRef(new RNAnimated.Value(0)).current;
+  const floatingHeartY = useRef(new RNAnimated.Value(0)).current;
+
   useEffect(() => {
     if (!lastQuote) {
       const quote = getQuote();
@@ -81,7 +84,25 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
     }
   };
 
-  const toggleFavorite = () => {
+  const triggerFloatingHeart = () => {
+    floatingHeartOpacity.setValue(1);
+    floatingHeartY.setValue(0);
+
+    RNAnimated.parallel([
+      RNAnimated.timing(floatingHeartY, {
+        toValue: -40,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      RNAnimated.timing(floatingHeartOpacity, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const toggleFavorite = async () => {
     if (!lastQuote) return;
 
     Haptics.selectionAsync();
@@ -107,6 +128,8 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
       setFavorites(favorites.filter((fav) => fav.quote !== lastQuote.quote));
     } else {
       setFavorites([...favorites, lastQuote]);
+      triggerFloatingHeart();
+      await onQuotePress(); // Move to next quote
     }
   };
 
@@ -152,6 +175,20 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
                 />
               </RNAnimated.View>
             </Pressable>
+
+            {/* ❤️ Floating Heart Animation */}
+            <RNAnimated.View
+              pointerEvents="none"
+              style={{
+                position: "absolute",
+                bottom: 180,
+                alignSelf: "center",
+                opacity: floatingHeartOpacity,
+                transform: [{ translateY: floatingHeartY }],
+              }}
+            >
+              <Ionicons name="heart" size={28} color={textColor} />
+            </RNAnimated.View>
 
             <Pressable
               style={styles.favScreenIcon}
