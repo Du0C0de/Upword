@@ -18,7 +18,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   const systemTheme = useColorScheme() as "light" | "dark";
-  const [theme, setTheme] = useState<"light" | "dark">(systemTheme);
+  const [theme, setTheme] = useState<"light" | "dark">(systemTheme || "light");
 
   const bg = theme === "dark" ? "#000" : "#fff";
   const iconColor = theme === "dark" ? "#fff" : "#000";
@@ -44,7 +44,11 @@ export default function App() {
               </View>
             )}
           </Stack.Screen>
-          <Stack.Screen name="Favorites" component={FavoritesScreen} />
+          <Stack.Screen name="Favorites">
+            {(props: any) => (
+              <FavoritesScreen {...props} theme={theme} setTheme={setTheme} />
+            )}
+          </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
