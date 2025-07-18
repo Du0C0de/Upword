@@ -5,12 +5,12 @@ export const runAnimation = async (
     animation: Animated.CompositeAnimation,
     onFinished?: () => void
 ) => {
-    const tick = Date.now();
+    // const tick = Date.now();
 
     const animatedPromise = new Promise<true>((res) => {
         const animationDone = () => {
-            const tock = Date.now() - tick;
-            console.log(`Animation done in: "${tock} ms"!`);
+            // const tock = Date.now() - tick;
+            // console.log(`Animation done in: "${tock} ms"!`);
             onFinished && onFinished();
             res(true);
         };
