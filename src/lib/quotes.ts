@@ -13,6 +13,7 @@ let validQuotes: Quote[] = quotes
         inital.push(cur);
         return inital;
     }, [] as Quote[]);
+console.debug(`Got ${validQuotes.length} valid quotes!`);
 
 function removeQuote(index: number) {
     // Keep one quote in there as to not break shit
