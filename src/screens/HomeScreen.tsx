@@ -125,7 +125,7 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
                             “{lastQuote.quote}”
                         </Text>
                         <Text style={[styles.author, { color: textColor }]}>
-                            — {lastQuote.author}
+                            — {lastQuote.author === "" ? "Unknown" : lastQuote.author}
                         </Text>
                     </Animated.View>
                 ) : (
