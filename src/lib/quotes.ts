@@ -1,67 +1,61 @@
 export type Quote = { quote: string; author: string; date?: number | null };
 import quotes from "../assets/quotes.json";
 
-const QUOTE_REFRESH_TIME_MINUTES = 10;
+const DEBUG_AMOUNT_OF_QUOTES: number | "all" = "all";
 
-type ValidQuoteOb = {
-    [key: number]: Quote;
-};
+const QUOTE_REFRESH_TIME_MINUTES: number = 0.3;
+const DIFFERENT_AUTHOR_TRY_TIMES: number = 5;
 
-let validQuotes: ValidQuoteOb = quotes.reduce((inital, cur, index) => {
-    inital[index] = cur;
-    return inital;
-}, {} as ValidQuoteOb);
+let validQuotes: Quote[] = quotes
+    //@ts-ignore
+    .slice(0, DEBUG_AMOUNT_OF_QUOTES === "all" ? quotes.length : DEBUG_AMOUNT_OF_QUOTES)
+    .reduce((inital, cur) => {
+        inital.push(cur);
+        return inital;
+    }, [] as Quote[]);
 
-function markQuote(index: number) {
+function removeQuote(index: number) {
     // Keep one quote in there as to not break shit
-    if (Object.keys(validQuotes).length === 1) {
+    if (validQuotes.length === 1) {
         console.warn("Last Object has been reached!");
         return;
     }
 
-    const quote = { ...validQuotes[index] } as Quote;
-    delete validQuotes[index];
+    const quoteCopy = { ...validQuotes[index] };
+
+    // @ts-ignore
+    validQuotes[index] = null;
+    validQuotes = validQuotes.filter((i) => i != null);
 
     setTimeout(() => {
-        console.debug(`Refreshed quote: ${JSON.stringify(quote)}`);
-        validQuotes[index] = quote;
+        // console.debug(`Refreshing Quote: ${JSON.stringify(quoteCopy)}`);
+        validQuotes.push(quoteCopy);
     }, QUOTE_REFRESH_TIME_MINUTES * 1000 * 60);
 }
 
-const NEW_AUTHOR_TRIES = 10;
-
-function getNewAuthor(last: Quote): [number, Quote] {
-    let finalIndex = 0;
-    let finalQuote: Quote = { ...last };
-
-    let iteration = 0;
-    while (last.author === finalQuote.author && iteration <= NEW_AUTHOR_TRIES) {
-        finalIndex = Math.floor(Math.random() * Object.keys(validQuotes).length);
-        finalQuote = { ...validQuotes[finalIndex] };
-        iteration = iteration + 1;
-
-        console.debug(
-            `Iteration: ${iteration}, isFinal: ${
-                iteration >= NEW_AUTHOR_TRIES ? "true" : "false"
-            }\n\t\b\bAuthor: ${last.author} -> ${finalQuote.author}`
-        );
-    }
-
-    if (iteration > NEW_AUTHOR_TRIES)
-        console.warn(`Tried ${iteration} iterations, failed to get new Author :(`);
-
-    return [finalIndex, finalQuote];
-}
-
-export default function getQuote(): Quote {
-    const quoteLength = Object.keys(validQuotes).length;
-
-    let randIndex = Math.floor(Math.random() * quoteLength);
+function getNewQuote(): [number, Quote] {
+    let randIndex = Math.floor(Math.random() * validQuotes.length);
     let quote = { ...validQuotes[randIndex] };
 
-    [randIndex, quote] = getNewAuthor(quote);
+    return [randIndex, quote];
+}
 
-    markQuote(randIndex);
-    console.debug(`Remaining Quotes: ${quoteLength - 1}`);
+let lastQuote: Quote | { author: null } = { author: null };
+export default function getQuote(): Quote {
+    let [index, quote] = getNewQuote();
+    let iter = 0;
+    while (
+        validQuotes[index].author === lastQuote.author &&
+        iter <= DIFFERENT_AUTHOR_TRY_TIMES
+    ) {
+        [index, quote] = getNewQuote();
+        iter++;
+    }
+
+    if (iter >= DIFFERENT_AUTHOR_TRY_TIMES)
+        console.warn(`FAILED to get a new author after ${iter} times!`);
+
+    removeQuote(index);
+    lastQuote = { ...quote };
     return quote;
 }

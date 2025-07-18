@@ -1,3 +1,6 @@
+//
+// THIS IS NOT A STOICISM APP
+//
 import React, { useEffect, useState, useRef } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, Share } from "react-native";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
