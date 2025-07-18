@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Animated } from "react-native";
 
-const runAnimation = async (
+export const runAnimation = async (
     animation: Animated.CompositeAnimation,
     onFinished?: () => void
 ) => {
@@ -135,6 +135,28 @@ export const SimpleAnimation = {
                 { stopTogether: false }
             ),
             reset
+        );
+    },
+    triggerFloatingHeart: async (
+        floatingHeartOpacity: Animated.Value,
+        floatingHeartY: Animated.Value
+    ) => {
+        floatingHeartOpacity.setValue(1);
+        floatingHeartY.setValue(0);
+
+        return await runAnimation(
+            Animated.parallel([
+                Animated.timing(floatingHeartY, {
+                    toValue: -40,
+                    duration: 600,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(floatingHeartOpacity, {
+                    toValue: 0,
+                    duration: 600,
+                    useNativeDriver: true,
+                }),
+            ])
         );
     },
 };
