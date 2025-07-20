@@ -1,12 +1,18 @@
-const { withDangerousMod, withPlugins } = require('@expo/config-plugins');
+const { withDangerousMod } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
-function modifyPodfile(config) {
+function patchPodfile(config) {
   return withDangerousMod(config, [
     'ios',
     async (config) => {
       const podfilePath = path.join(config.modRequest.projectRoot, 'ios', 'Podfile');
+
+      if (!fs.existsSync(podfilePath)) {
+        console.warn("❌ Podfile not found.");
+        return config;
+      }
+
       let contents = fs.readFileSync(podfilePath, 'utf8');
 
       if (!contents.includes("pod 'ExpoModulesCore'")) {
@@ -17,6 +23,8 @@ function modifyPodfile(config) {
 
         fs.writeFileSync(podfilePath, contents);
         console.log("✅ Patched Podfile with ExpoModulesCore");
+      } else {
+        console.log("ℹ️ ExpoModulesCore already present in Podfile.");
       }
 
       return config;
@@ -24,8 +32,4 @@ function modifyPodfile(config) {
   ]);
 }
 
-const withAdMobFix = (config) => {
-  return withPlugins(config, [modifyPodfile]);
-};
-
-module.exports = withAdMobFix;
+module.exports = patchPodfile;
