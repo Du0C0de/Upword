@@ -16,9 +16,6 @@
       "bundleIdentifier": "com.brodster.dailyquotesapp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      },
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3940256099942544~3347511713"
       }
     },
     "android": {
@@ -36,7 +33,6 @@
       "eas": {
         "projectId": "2662ea13-39e3-40a4-8b8f-f627e64981ff"
       }
-    },
-    "plugins": ["withadmobfix"]
+    }
   }
 }
