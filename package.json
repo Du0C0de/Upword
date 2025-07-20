@@ -28,7 +28,8 @@
     "react-native-root-toast": "^4.0.1",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "^4.11.1",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "withadmobfix": "file:./plugins/withadmobfix"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
