@@ -1,8 +1,8 @@
-const { withDangerousMod } = require('@expo/config-plugins');
+const { withDangerousMod, withPlugins } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
-function withAdMobFix(config) {
+function modifyPodfile(config) {
   return withDangerousMod(config, [
     'ios',
     async (config) => {
@@ -24,5 +24,8 @@ function withAdMobFix(config) {
   ]);
 }
 
-withAdMobFix.pluginName = "withAdMobFix"; // 👈 required for app.json plugins
+const withAdMobFix = (config) => {
+  return withPlugins(config, [modifyPodfile]);
+};
+
 module.exports = withAdMobFix;
