@@ -1,28 +1,42 @@
 {
-    "expo": {
-        "name": "DailyQuotesApp",
-        "slug": "daily-quotes-app",
-        "version": "1.0.0",
-        "orientation": "portrait",
-        "icon": "./assets/icon.png",
-        "newArchEnabled": true,
-        "splash": {
-            "image": "./assets/splash-icon.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-        },
-        "ios": {
-            "supportsTablet": true
-        },
-        "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./assets/icon-foreground.png",
-                "backgroundColor": "#ffffff"
-            },
-            "edgeToEdgeEnabled": true
-        },
-        "web": {
-            "favicon": "./assets/favicon.png"
-        }
-    }
+  "expo": {
+    "name": "DailyQuotesApp",
+    "slug": "daily-quotes-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/media/icon.png",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./src/assets/media/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.brodster.dailyquotesapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3940256099942544~3347511713"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/media/icon-foreground.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.brodster.dailyquotesapp"
+    },
+    "web": {
+      "favicon": "./src/assets/media/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2662ea13-39e3-40a4-8b8f-f627e64981ff"
+      }
+    },
+    "plugins": ["./plugins/withAdMobFix"]
+  }
 }

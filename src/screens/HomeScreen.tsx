@@ -1,6 +1,4 @@
-//
 // THIS IS NOT A STOICISM APP
-//
 import React, { useEffect, useState, useRef } from "react";
 import { View, Text, StyleSheet, Pressable, Animated, Share } from "react-native";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
@@ -14,6 +12,9 @@ import {
 import getQuote from "../lib/quotes";
 import { Quote, HomeScreenProps, AnimationState } from "../types";
 import * as Haptics from "expo-haptics";
+
+// 🔥 Import AdMob components
+import { AdMobBanner, setTestDeviceIDAsync } from "expo-ads-admob";
 
 export default function HomeScreen({ theme }: HomeScreenProps) {
     const navigation = useNavigation();
@@ -34,7 +35,6 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
     });
 
     const [heartScale] = useState(new Animated.Value(1));
-
     const floatingHeartOpacity = useRef(new Animated.Value(0)).current;
     const floatingHeartY = useRef(new Animated.Value(0)).current;
 
@@ -43,6 +43,9 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
             const quote = getQuote();
             setLastQuote(quote);
         }
+
+        // 🧪 Register test device for safe ad testing
+        setTestDeviceIDAsync("EMULATOR");
     }, [lastQuote]);
 
     const onQuotePress = async (fadeoutDirection: "up" | "down" | null = null) => {
@@ -166,6 +169,16 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
                 >
                     <MaterialIcons name="favorite" size={26} color={textColor} />
                 </Pressable>
+
+                {/* 📢 AdMob Banner Ad */}
+                <View style={styles.adContainer}>
+                    <AdMobBanner
+                        bannerSize="smartBannerPortrait"
+                        adUnitID="ca-app-pub-3940256099942544/6300978111" // ← Test banner ad unit
+                        servePersonalizedAds
+                        onDidFailToReceiveAdWithError={(error) => console.log("Ad load error:", error)}
+                    />
+                </View>
             </View>
         </Pressable>
     );
@@ -209,5 +222,10 @@ const styles = StyleSheet.create({
         top: 60,
         right: 20,
         padding: 10,
+    },
+    adContainer: {
+        position: "absolute",
+        bottom: 0,
+        alignSelf: "center",
     },
 });
