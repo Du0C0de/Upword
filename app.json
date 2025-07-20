@@ -37,6 +37,6 @@
         "projectId": "2662ea13-39e3-40a4-8b8f-f627e64981ff"
       }
     },
-    "plugins": ["./plugins/withadmobfix"]
+    "plugins": ["withadmobfix"]
   }
 }

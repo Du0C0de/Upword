@@ -2,7 +2,7 @@ const { withDangerousMod } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
-function patchPodfile(config) {
+function withAdMobFix(config) {
   return withDangerousMod(config, [
     'ios',
     async (config) => {
@@ -32,4 +32,4 @@ function patchPodfile(config) {
   ]);
 }
 
-module.exports = patchPodfile;
+module.exports = withAdMobFix;
