@@ -16,7 +16,7 @@ let validQuotes: Quote[] = quotes
 console.debug(`Got ${validQuotes.length} valid quotes!`);
 
 function removeQuote(index: number) {
-    // Keep one quote in there as to not break shit
+    // Keep one quote in there as to not break app
     if (validQuotes.length === 1) {
         console.warn("Last Object has been reached!");
         return;

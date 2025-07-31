@@ -12,10 +12,21 @@
       "distribution": "internal"
     },
     "production": {
+      "distribution": "store",
+      "ios": {
+        "buildType": "release"
+      },
+      "android": {
+        "buildType": "apk"
+      },
       "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "brodya.richardson@gmail.com"
+      }
+    }
   }
 }

@@ -1,49 +1,62 @@
 import { writeFile } from "node:fs";
-import _quotes from "./quotes.json" with {type: "json"}
+import _quotes from "./quotes.json" with { type: "json" };
 
-const quotes = [..._quotes]
+const quotes = [..._quotes];
 
 type QuotableQuote = {
-    _id: string,
-    content: string,
-    author: string,
-    authorSlug: string,
-    length: number,
-    tags: string[]
+  _id: string;
+  content: string;
+  author: string;
+  authorSlug: string;
+  length: number;
+  tags: string[];
+};
+
+async function wait(seconds: number) {
+  return new Promise((res) => setTimeout(res, seconds * 1000));
 }
 
-async function wait(_for: number) {
-    return new Promise(res=>setTimeout(res, _for * 1000))
-}
-
-function addQuotes(passedQuotes: QuotableQuote[]){
-    for (let i = 0; i < passedQuotes.length; i++) {
-        let isBad = false;
-        for (let ii = 0; ii < Object.keys(quotes).length; ii++) {
-            if(passedQuotes[i].content === quotes[ii].quote){
-                isBad = true;
-                break;
-            }
-        }
-
-        if(isBad)
-            continue
-
-        quotes.push({author: passedQuotes[i].author, quote: passedQuotes[i].content})
+function addQuotes(passedQuotes: QuotableQuote[]) {
+  for (const quote of passedQuotes) {
+    const isDuplicate = quotes.some((q) => q.quote === quote.content);
+    if (!isDuplicate) {
+      quotes.push({
+        author: quote.author,
+        quote: quote.content,
+      });
     }
-
-    writeFile("./quotesNew.json", JSON.stringify(quotes), ()=>console.log("Done"))
+  }
 }
 
-const main = async ()=>{
-    while(true){
-        const req = await fetch("http://api.quotable.io/quotes/random?limit=50")
-        const json = await req.json()
-        console.log(`Adding quote list starting with "${JSON.stringify(json[0], null, 2)}"`)
-        addQuotes(json)
+async function fetchQuotesBatch(): Promise<QuotableQuote[] | null> {
+  try {
+    const res = await fetch("https://api.quotable.io/quotes/random?limit=50");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    return json;
+  } catch (err) {
+    console.error("Failed to fetch quotes:", err);
+    return null;
+  }
+}
 
-        await wait(1)
+const MAX_CYCLES = 10; // Number of 50-quote batches (total: 500)
+
+const main = async () => {
+  for (let i = 0; i < MAX_CYCLES; i++) {
+    const quotesBatch = await fetchQuotesBatch();
+    if (quotesBatch) {
+      console.log(`Adding ${quotesBatch.length} quotes...`);
+      addQuotes(quotesBatch);
     }
-}
+    await wait(1);
+  }
 
-main()
+  writeFile(
+    "./quotesNew.json",
+    JSON.stringify(quotes, null, 2),
+    () => console.log("✅ Done writing to quotesNew.json")
+  );
+};
+
+main();

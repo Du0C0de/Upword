@@ -57,7 +57,9 @@ export default function FavoritesScreen({ theme }: FavoritesScreenProps) {
         if (openRow.current) openRow.current.close();
         try {
             await Share.share({
-                message: `“${quote.quote}” — ${quote.author}\n\nShared from the Daily Quotes App!`,
+                message: `“${quote.quote}” — ${
+                    quote.author?.trim() ? quote.author : "Unknown"
+                }\n\nShared from the Upword App!\nhttps://www.apple.com/app-store/`,
             });
         } catch (error) {
             console.error("Share failed:", error);
@@ -65,7 +67,7 @@ export default function FavoritesScreen({ theme }: FavoritesScreenProps) {
     };
 
     const renderRightActions = (
-        progress: RNAnimated.AnimatedInterpolation<number>,
+        progress: any,
         item: Quote
     ) => {
         const slide = progress.interpolate({
@@ -99,43 +101,41 @@ export default function FavoritesScreen({ theme }: FavoritesScreenProps) {
         );
     };
 
-    const renderItem = ({ item, index }: { item: Quote; index: number }) => {
-        return (
-            <Swipeable
-                ref={(ref) => {
-                    swipeableRefs.current.set(index, ref);
-                }}
-                renderRightActions={(progress) => renderRightActions(progress, item)}
-                onSwipeableOpen={() => {
-                    const ref = swipeableRefs.current.get(index);
-                    if (openRow.current && openRow.current !== ref) {
-                        openRow.current.close();
-                    }
-                    openRow.current = ref ?? null;
-                }}
-                onSwipeableClose={() => {
-                    const ref = swipeableRefs.current.get(index);
-                    if (openRow.current === ref) {
-                        openRow.current = null;
-                    }
-                }}
-                friction={1.5}
-                overshootRight={false}
-                hitSlop={{ right: 0 }}
-            >
-                <View style={styles.swipeableWrapper}>
-                    <Pressable style={styles.quoteRow}>
-                        <Text style={[styles.quote, { color: textColor }]}>
-                            “{item.quote}”
-                        </Text>
-                        <Text style={[styles.author, { color: textColor }]}>
-                            — {item.author}
-                        </Text>
-                    </Pressable>
-                </View>
-            </Swipeable>
-        );
-    };
+    const renderItem = ({ item, index }: { item: Quote; index: number }) => (
+        <Swipeable
+            ref={(ref: Swipeable | null) => {
+                swipeableRefs.current.set(index, ref);
+            }}
+            renderRightActions={(progress) => renderRightActions(progress, item)}
+            onSwipeableOpen={() => {
+                const ref = swipeableRefs.current.get(index);
+                if (openRow.current && openRow.current !== ref) {
+                    openRow.current.close();
+                }
+                openRow.current = ref ?? null;
+            }}
+            onSwipeableClose={() => {
+                const ref = swipeableRefs.current.get(index);
+                if (openRow.current === ref) {
+                    openRow.current = null;
+                }
+            }}
+            friction={1.5}
+            overshootRight={false}
+            hitSlop={{ right: 0 }}
+        >
+            <View style={styles.swipeableWrapper}>
+                <Pressable style={styles.quoteRow}>
+                    <Text style={[styles.quote, { color: textColor }]}>
+                        “{item.quote}”
+                    </Text>
+                    <Text style={[styles.author, { color: textColor }]}>
+                        — {item.author?.trim() ? item.author : "Unknown"}
+                    </Text>
+                </Pressable>
+            </View>
+        </Swipeable>
+    );
 
     return (
         <View style={[styles.container, { backgroundColor }]}>

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "DailyQuotesApp",
-    "slug": "daily-quotes-app",
+    "name": "Upword",
+    "slug": "upword",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/media/icon.png",
@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.brodster.dailyquotesapp",
+      "bundleIdentifier": "com.brodster.upword",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -24,7 +24,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.brodster.dailyquotesapp"
+      "package": "com.brodster.upword"
     },
     "web": {
       "favicon": "./src/assets/media/favicon.png"

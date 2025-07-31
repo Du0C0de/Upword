@@ -60,8 +60,10 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
 
         try {
             await Share.share({
-                message: `“${lastQuote.quote}” — ${lastQuote.author}\n\nCheck out the UpWord App!`,
-                url: "https://Upword.com",
+                message: `“${lastQuote.quote}” — ${
+                    lastQuote.author?.trim() ? lastQuote.author : "Unknown"
+                }\n\nCheck out the Upword App!\nhttps://www.apple.com/app-store/`,
+                url: "https://www.apple.com/app-store/",
                 title: "Inspiring Quote",
             });
         } catch (error) {
@@ -122,7 +124,7 @@ export default function HomeScreen({ theme }: HomeScreenProps) {
                             “{lastQuote.quote}”
                         </Text>
                         <Text style={[styles.author, { color: textColor }]}>
-                            — {lastQuote.author === "" ? "Unknown" : lastQuote.author}
+                            — {lastQuote.author?.trim() ? lastQuote.author : "Unknown"}
                         </Text>
                     </Animated.View>
                 ) : (
